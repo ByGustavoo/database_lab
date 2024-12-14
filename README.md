@@ -1,4 +1,4 @@
-# Database Lab
+# DataBaseLab
 
 ## Como usar este repositório?
 
