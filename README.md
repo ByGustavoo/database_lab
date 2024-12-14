@@ -1,5 +1,13 @@
-# 🐘 DataBase Lab
+<div align="center"> <br> 
+  <img align="center" alt="guru-java" height="250" width="350" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain.svg" />
+</div> <br>  <br> 
 
+
+<div align="center"> 
+   Este repositório contém minhas anotações sobre os conteúdos abordados nas aulas de PostgreSQL ministradas por Rafael Bardini, DevOps na VR Software.
+</div>
+
+<br> 
 
 ## 📌 Como usar este repositório?
 
