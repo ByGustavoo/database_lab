@@ -1,0 +1,233 @@
+### Aula 01: Configuração do Banco de Dados
+
+# Criação de Conexão TCP/IP com o Servidor
+
+- Edite o arquivo pg_hba.conf para controlar as permissões de acesso ao banco.
+
+  --> sudo nano /etc/postgresql/15/main/pg_hba.conf
+
+- Exemplo para permitir conexões externas:
+
+  --> host    all    all    0.0.0.0/0    md5
+
+
+### Aula 02: Comandos CLI
+
+# Conexão ao PostgreSQL
+
+- Para conectar ao PostgreSQL como o usuário postgres:
+  
+  --> psql -U postgres [-p 5432]
+
+
+# Meta Comandos
+
+- \h [comando]: Exibe ajuda sobre a sintaxe do comando SQL.
+
+  --> \h SELECT
+
+
+- \l: Lista todas as bases de dados.
+
+  --> \l
+
+
+- \du: Lista os roles (usuários e permissões).
+
+  --> \du
+
+
+- \d[S]: Lista tabelas, incluindo as do sistema (com S).
+
+  --> \dS
+
+
+- \c [database]: Conecta a uma base de dados.
+
+  --> \c database_lab
+
+
+### Aula 03: WHERE e Migração de Bases
+
+# Operadores WHERE
+
+- AND/OR: Define condições múltiplas.
+
+  --> SELECT * FROM usuarios WHERE idade > 18 AND cidade = 'São Paulo';
+
+
+- IN: Verifica se o valor está em uma lista.
+
+  --> SELECT * FROM usuarios WHERE cidade IN ('São Paulo', 'Rio de Janeiro');
+
+
+- NOT IN: Verifica se o valor não está em uma lista.
+
+  --> SELECT * FROM usuarios WHERE cidade NOT IN ('São Paulo', 'Rio de Janeiro');
+
+
+- BETWEEN: Verifica se o valor está dentro de um intervalo.
+
+  --> SELECT * FROM usuarios WHERE idade BETWEEN 18 AND 30;
+
+
+- LIKE/ILIKE: Realiza buscas com padrões (ILIKE é insensível a maiúsculas).
+
+  --> SELECT * FROM produtos WHERE nome LIKE '%maçã%';
+  
+
+# Migração de Base
+
+- Criar banco de dados com template:
+
+  --> CREATE DATABASE vr_40 WITH TEMPLATE vr;
+
+
+- Encerrar conexões para permitir alterações no banco:
+
+  --> SELECT pid FROM pg_stat_activity WHERE datname = 'vr';
+  --> SELECT pg_terminate_backend(<pid>);
+
+
+### Aula 04: JOINS e Backup
+
+# Backup
+
+- Criar backup de banco de dados:
+
+  --> pg_dump -U postgres -p 5432 -d vr -v -Fc > /tmp/vr.dump
+
+
+- Restaurar backup:
+
+  --> pg_restore -U postgres -p 5432 -d vr_restore -v -Fc /tmp/vr.backup
+
+
+### Aula 05: GROUP BY e Funções de Agregação
+
+# GROUP BY
+
+- Agrupa dados para agregação:
+
+  --> SELECT cidade, COUNT(*) FROM usuarios GROUP BY cidade;
+
+
+# Funções de Agregação
+
+- SUM: Soma valores.
+
+  --> SELECT SUM(salario) FROM funcionarios;
+
+
+- COUNT: Conta registros.
+
+  --> SELECT COUNT(*) FROM pedidos;
+
+
+- AVG: Calcula média.
+
+  --> SELECT AVG(idade) FROM clientes;
+
+
+- ROUND: Arredonda valores.
+
+  --> SELECT ROUND(AVG(preco), 2) FROM produtos;
+
+
+HAVING: Filtra resultados após o agrupamento:
+
+  --> SELECT cidade, COUNT(*) FROM usuarios GROUP BY cidade HAVING COUNT(*) > 10;
+
+
+# Operadores de Conjunto
+
+- UNION: Combina resultados de duas consultas.
+
+  --> SELECT nome FROM clientes UNION SELECT nome FROM fornecedores;
+
+
+- INTERSECT: Retorna valores em comum.
+
+  --> SELECT nome FROM clientes INTERSECT SELECT nome FROM fornecedores;
+
+
+- EXCEPT: Retorna valores apenas da primeira consulta.
+
+  --> SELECT nome FROM clientes EXCEPT SELECT nome FROM fornecedores;
+
+
+
+### Aula 06: Subconsultas e CTE
+
+# Subconsultas
+
+- Consultas dentro de outras consultas:
+
+  --> SELECT * FROM produtos WHERE categoria_id = (SELECT id FROM categorias WHERE nome = 'Eletrônicos');
+
+
+# CTE (Common Table Expressions)
+
+- Consulta reutilizável:
+
+  --> WITH vendas_por_mes AS (
+      SELECT EXTRACT(MONTH FROM data) AS mes, SUM(valor) AS total
+      FROM vendas
+      GROUP BY EXTRACT(MONTH FROM data))
+
+  --> SELECT * FROM vendas_por_mes;
+
+
+### Aula 07: DML (Data Manipulation Language)
+
+# Comandos DML
+
+- INSERT: Insere registros.
+  
+  --> INSERT INTO clientes (nome, idade) VALUES ('João', 30) RETURNING id;
+
+
+- UPDATE: Atualiza registros.
+
+  --> UPDATE produtos SET preco = preco * 1.1 WHERE categoria = 'Eletrônicos';
+
+
+- DELETE: Remove registros.
+
+  --> DELETE FROM pedidos WHERE data < '2024-01-01';
+
+
+- UPSERT: Insere ou atualiza.
+
+  --> INSERT INTO produtos (id, nome, preco) VALUES (1, 'Notebook', 3000)
+      ON CONFLICT (id) DO UPDATE SET preco = EXCLUDED.preco;
+
+
+- TRUNCATE: Remove todos os registros rapidamente.
+
+  --> TRUNCATE TABLE logs;
+
+
+### Aula 08: Performance
+
+# Configurações de Memória
+
+- Ajustar memória para operações intermediárias:
+
+  --> SET work_mem = '64MB';
+
+
+- Ajustar memória para joins hash:
+
+  --> SET shared_buffers = '512MB';
+
+
+# Índices
+
+- Aceleram consultas em tabelas grandes:
+
+  --> CREATE INDEX idx_nome ON clientes (nome);
+
+- VACUUM: Reorganiza tabelas para liberar espaço.
+
+  --> VACUUM ANALYZE;
